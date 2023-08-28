@@ -2,20 +2,27 @@ import React, { useEffect, useState } from "react";
 
 import { Card, CardContent, Box, Typography, Button, TextField, Pagination } from "@mui/material";
 
-import ListEventTable from "../dashboards/dashboard1-components/EventTable";
+import ListEventTable from "./element/EventTable";
 
 const EventTable = () => {
   const [EventData, setEventData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [isLoading,setIsLoading]= useState(false);
+  const [isdelete, setIsdelete]= useState(false);
+  
+  if(!localStorage.getItem("authToken")){
+    window.location='/login'
+  }
 
   useEffect(() => {
+    setIsLoading(true);
     const delayTimeout = setTimeout(() => {
       fetchEventData(page,search);
-    }, 500);
-    return () => clearTimeout(delayTimeout); // Cleanup the timeout on unmount or when search changes
-  }, [page, search]);
+    }, 200);
+    return () => clearTimeout(delayTimeout);
+  }, [page, search,isdelete]);
 
   const fetchEventData = async (p,s) => {
     try {
@@ -23,14 +30,22 @@ const EventTable = () => {
       const data = await response.json();
       setEventData(data['data']);
       setTotalPage(data['totalPages']);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching Event data:", error);
+      setIsLoading(false);
     }
   };
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
     setPage(1);
   };
+  const handleDeleteEvent=()=>{
+    setIsdelete(!isdelete);
+  }
+  const handelAdd=()=>{
+    window.location = '/#/form-layouts/form-event'
+  }
   return (
         <Box>
           <Card variant="outlined">
@@ -45,6 +60,7 @@ const EventTable = () => {
               <Button
                 variant="outlined"
                 color="primary"
+                onClick={handelAdd} 
               >
                 Tambah Data
               </Button>
@@ -76,7 +92,7 @@ const EventTable = () => {
                 },
               }}
             >
-              <ListEventTable events={EventData} />
+              <ListEventTable events={EventData} loading={isLoading} onDeleteEvent={handleDeleteEvent} />
             </Box>
             <Box
               sx={{

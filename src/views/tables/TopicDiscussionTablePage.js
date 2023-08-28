@@ -2,36 +2,50 @@ import React, { useEffect, useState } from "react";
 
 import { Card, CardContent, Box, Typography, Button, Pagination, TextField } from "@mui/material";
 
-import ListTopicDiscussionTable from "../dashboards/dashboard1-components/TopicDIscussionTable.js";
+import ListTopicDiscussionTable from "./element/TopicDIscussionTable.js";
 
 const TopicDiscussionTable = () => {
   const [TopicData, setTopicData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [isLoading,setIsLoading]= useState(false);
+  const [isdelete, setIsdelete]= useState(false);
 
+  if(!localStorage.getItem("authToken")){
+    window.location='/login'
+  }
   useEffect(() => {
+    setIsLoading(true);
     const delayTimeout = setTimeout(() => {
-      fetchNewsData();
+      fetchDiscusData(page,search);
     }, 500);
 
-    return () => clearTimeout(delayTimeout); // Cleanup the timeout on unmount or when search changes
-  }, [page, search]);
+    return () => clearTimeout(delayTimeout); 
+  }, [page, search,isdelete]);
 
-  const fetchNewsData = async () => {
+  const fetchDiscusData = async (p,s) => {
     try {
-      const response = await fetch(`http://127.0.0.1:3001/api/discussionTopic?page=${page}&search=${search}`);
+      const response = await fetch(`http://127.0.0.1:3001/api/discussionTopic?page=${p}&search=${s}`);
       const data = await response.json();
       setTopicData(data['data']);
       setTotalPage(data['totalPages']);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching news data:", error);
+      setIsLoading(false);
     }
   };
   const handleSearchChange = (Topic) => {
     setSearch(Topic.target.value);
     setPage(1);
   };
+  const handleDeleteDiscus=()=>{
+    setIsdelete(!isdelete);
+  }
+  const handelAdd=()=>{
+    window.location = '/#/form-layouts/form-discus'
+  }
   return (
         <Box>
           <Card variant="outlined">
@@ -46,6 +60,7 @@ const TopicDiscussionTable = () => {
               <Button
                 variant="outlined"
                 color="primary"
+                onClick={handelAdd} 
               >
                 Tambah Data
               </Button>
@@ -76,7 +91,7 @@ const TopicDiscussionTable = () => {
                 },
               }}
             >
-              <ListTopicDiscussionTable topics={TopicData} />
+              <ListTopicDiscussionTable topics={TopicData} loading={isLoading} onDeleteDiscus={handleDeleteDiscus}/>
             </Box>
             <Box
               sx={{

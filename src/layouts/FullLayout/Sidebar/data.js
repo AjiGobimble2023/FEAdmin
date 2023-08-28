@@ -49,11 +49,6 @@ const Menuitems = [
     icon: AutoAwesomeMosaicOutlinedIcon,
     href: "/tables/users-table",
   },
-  {
-    title: "Form",
-    icon: DescriptionOutlinedIcon,
-    href: "/form-layouts/form-layouts",
-  },
 ];
 
 export default Menuitems;

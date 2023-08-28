@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, Box, Typography, Button, TextField,Pagination } from "@mui/material";
-import ListNewsTable from "../dashboards/dashboard1-components/NewsTable";
+import ListNewsTable from "./element/NewsTable";
 
 const NewsTable = () => {
   const [newsData, setNewsData] = useState([]);
@@ -8,23 +8,33 @@ const NewsTable = () => {
   const [totalPages, setTotalPage] = useState(1);
   const [search, setSearch] = useState('');
   const [isdelete, setIsdelete]= useState(false);
+  const [isLoading,setIsLoading]= useState(false);
+
+  if(!localStorage.getItem("authToken")){
+    window.location='/login'
+  }
 
   useEffect(() => {
+    setIsLoading(true);
     const delayTimeout = setTimeout(() => {
-      fetchNewsData();
+      fetchNewsData(page,search);
     }, 500);
 
     return () => clearTimeout(delayTimeout); 
   }, [page, search,isdelete]);
 
-  const fetchNewsData = async () => {
+  const fetchNewsData = async (p,s) => {
     try {
-      const response = await fetch(`http://127.0.0.1:3001/api/news?page=${page}&search=${search}`);
+      const response = await fetch(`http://127.0.0.1:3001/api/news?page=${p}&search=${s}`);
       const data = await response.json();
+      if(response){
       setNewsData(data['data']);
-      setTotalPage(data['totalPages'])
+      setTotalPage(data['totalPages']);
+      setIsLoading(false);
+      }
     } catch (error) {
       console.error("Error fetching news data:", error);
+      setIsLoading(false);
     }
   };
 
@@ -50,7 +60,7 @@ const NewsTable = () => {
           }}
         >
           <Typography variant="h3">Data Berita</Typography>
-          <Button variant="outlined" color="primary" onClick={handelAdd}>
+          <Button variant="outlined" color="primary" onClick={handelAdd} >
             Tambah Data
           </Button>
         </CardContent>
@@ -81,7 +91,7 @@ const NewsTable = () => {
             },
           }}
         >
-          <ListNewsTable News={newsData} onDeleteNews={handleDeleteNews}/>
+          <ListNewsTable News={newsData} onDeleteNews={handleDeleteNews} loading={isLoading}/>
         </Box>
         <Box
         sx={{

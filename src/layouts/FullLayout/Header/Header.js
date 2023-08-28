@@ -1,12 +1,8 @@
 import React from "react";
-//import { Link } from 'react-router-dom';
 
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import AddToPhotosOutlinedIcon from '@mui/icons-material/AddToPhotosOutlined';
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import AccountBoxRoundedIcon from '@mui/icons-material/AccountBoxRounded';
 
 import {
   AppBar,
@@ -21,18 +17,12 @@ import {
   ListItemIcon,
 } from "@mui/material";
 
-import userimg from "../../../assets/images/users/user.jpg";
-
 const Header = (props) => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  
+
+
 
   // 4
   const [anchorEl4, setAnchorEl4] = React.useState(null);
@@ -44,17 +34,30 @@ const Header = (props) => {
   const handleClose4 = () => {
     setAnchorEl4(null);
   };
-
-  // 5
-  const [anchorEl5, setAnchorEl5] = React.useState(null);
-
-  const handleClick5 = (event) => {
-    setAnchorEl5(event.currentTarget);
+  const handleLogout = async () => {
+    try {
+      const authToken = localStorage.getItem("authToken");
+  
+      const url = "http://127.0.0.1:3001/api/logout";
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${authToken}`,
+        },
+      });
+  
+      if (response.ok) {
+        localStorage.removeItem("authToken");
+        window.location="../../login"
+      } else {
+        console.error("Failed to logout.", response);
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
-
-  const handleClose5 = () => {
-    setAnchorEl5(null);
-  };
+  
+ 
 
   return (
     <AppBar sx={props.sx} elevation={0} className={props.customClass}>
@@ -62,6 +65,7 @@ const Header = (props) => {
         <IconButton
           color="inherit"
           aria-label="menu"
+          onClick={props.toggleMobileSidebar}
           sx={{
             display: {
               lg: "none",
@@ -69,7 +73,7 @@ const Header = (props) => {
             },
           }}
         >
-          
+          <MenuOutlinedIcon width="20" height="20" />
         </IconButton>
         <IconButton
           aria-label="menu"
@@ -77,28 +81,36 @@ const Header = (props) => {
           aria-controls="dd-menu"
           aria-haspopup="true"
         >
+        
         </IconButton>
-        <Menu
-          id="dd-menu"
-          anchorEl={anchorEl5}
-          keepMounted
-          open={Boolean(anchorEl5)}
-          onClose={handleClose5}
-          anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
-          transformOrigin={{ horizontal: "left", vertical: "top" }}
-          sx={{
-            "& .MuiMenu-paper": {
-              width: "250px",
-              right: 0,
-              top: "70px !important",
-            },
-          }}
-        >
-        </Menu>
+        
         <Box flexGrow={1} />
 
-  
+        {/* ------------------------------------------- */}
+        {/* Notifications Dropdown */}
+        {/* ------------------------------------------- */}
+        <IconButton
+          aria-label="menu"
+          color="inherit"
+          aria-controls="notification-menu"
+          aria-haspopup="true"
+        >
+        </IconButton>
         
+        {/* ------------------------------------------- */}
+        {/* End Notifications Dropdown */}
+        {/* ------------------------------------------- */}
+        {/* ------------------------------------------- */}
+        {/* Profile Dropdown */}
+        {/* ------------------------------------------- */}
+        <Box
+          sx={{
+            width: "1px",
+            backgroundColor: "rgba(0,0,0,0.1)",
+            height: "25px",
+            ml: 1,
+          }}
+        ></Box>
         <Button
           aria-label="menu"
           color="inherit"
@@ -112,14 +124,20 @@ const Header = (props) => {
               alignItems: "center",
             }}
           >
-            <Avatar
-              src={userimg}
-              alt={userimg}
+             <Avatar
               sx={{
-                width: "30px",
-                height: "30px",
+                width: 30,
+                height: 30,
+                backgroundColor: "gray", // Warna latar belakang ikon
               }}
-            />
+            >
+              <AccountBoxRoundedIcon
+                sx={{
+                  fontSize: 25, // Ukuran ikon di dalam avatar
+                  color: "white", // Warna ikon di dalam avatar
+                }}
+              />
+            </Avatar>
           </Box>
         </Button>
         <Menu
@@ -138,35 +156,8 @@ const Header = (props) => {
             },
           }}
         >
-          <MenuItem onClick={handleClose4}>
-            <Avatar
-              sx={{
-                width: "35px",
-                height: "35px",
-              }}
-            />
-            <Box
-              sx={{
-                ml: 2,
-              }}
-            >
-              My account
-            </Box>
-          </MenuItem>
           <Divider />
-          <MenuItem onClick={handleClose4}>
-            <ListItemIcon>
-              <PersonAddOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            Add another account
-          </MenuItem>
-          <MenuItem onClick={handleClose4}>
-            <ListItemIcon>
-              <SettingsOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            Settings
-          </MenuItem>
-          <MenuItem onClick={handleClose4}>
+          <MenuItem onClick={handleLogout}>
             <ListItemIcon>
               <LogoutOutlinedIcon fontSize="small" />
             </ListItemIcon>

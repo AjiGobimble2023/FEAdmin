@@ -2,43 +2,53 @@ import React, { useEffect, useState } from "react";
 
 import { Card, CardContent, Box, Typography, Button, TextField, Pagination } from "@mui/material";
 
-import ListUserTable from "../dashboards/dashboard1-components/UserTable";
+import ListUserTable from "./element/UserTable";
 
 const UserTable = () => {
   const [UserData, setUserData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [isLoading,setIsLoading]= useState(false);
 
+  if(!localStorage.getItem("authToken")){
+    window.location='/login'
+  }
   useEffect(() => {
+    setIsLoading(true);
     const delayTimeout = setTimeout(() => {
-      fetchNewsData();
+      fetchUsersData(page,search);
     }, 500);
 
     return () => clearTimeout(delayTimeout); 
   }, [page, search]);
 
-  const fetchNewsData = async () => {
+  const fetchUsersData = async (p,s) => {
+    const token = localStorage.getItem("authToken") ;
     try {
       const headers = {
-        "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGRmMTNmYWVlZGFkNjM5OWY4NDc5NjYiLCJmdWxsX25hbWUiOiJBZG1pbiIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjkyMzQxMzI1fQ.G8Y5c5sLWBSJFQBZlycygSFHktFGVbG7MuQ7Q78x-qE`
+        "Authorization": `Bearer ${token}`
       };
-      
-      const response = await fetch(`http://127.0.0.1:3001/api/alluser?page=${page}&search=${search}`, {
+      const response = await fetch(`http://127.0.0.1:3001/api/alluser?page=${p}&search=${s}`, {
         headers: headers
       });
       const data = await response.json();
       console.log(data);
       setUserData(data['data']);
       setTotalPage(data['totalPages']);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching news data:", error);
+      setIsLoading(false);
     }
   };
   const handleSearchChange = (User) => {
     setSearch(User.target.value);
     setPage(1);
   };
+  const handelAdd=()=>{
+    window.location = '/#/form-layouts/form-user'
+  }
   return (
         <Box>
           <Card variant="outlined">
@@ -53,6 +63,7 @@ const UserTable = () => {
               <Button
                 variant="outlined"
                 color="primary"
+                onClick={handelAdd} 
               >
                 Tambah Data
               </Button>
@@ -84,7 +95,7 @@ const UserTable = () => {
                 },
               }}
             >
-              <ListUserTable users={UserData} />
+              <ListUserTable users={UserData} loading={isLoading}/>
             </Box>
             <Box
               sx={{
